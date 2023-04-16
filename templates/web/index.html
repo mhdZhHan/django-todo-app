@@ -1,0 +1,143 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+<div class="todo_container">
+    <h1 class="title_">Add ToDo</h1>
+    <div class="user">
+        {% if request.user.is_authenticated %}
+            <h6 class="user">Welcome, {{request.user.first_name}}</h6>
+        {% endif %}
+        <h6 class="logout"><a href="{% url 'users:logout' %}">Logout</a></h6>
+    </div>
+
+    <div class="todo_items">
+        <h2 class="title">Todo List</h2>
+        <ul class="items" id="tasks">
+            {% for task in tasks %}
+                <li class="item">
+                    <div class="left">
+                        <a class="circle" 
+                            href="{% url 'web:complete' pk=task.pk %}"
+                        ></a>
+                        <span class="text">{{task.title}}</span>
+                    </div>
+                    <div class="right">
+                        <span class="edit modal_trigger" 
+                            onclick="openPopup({{ task.pk }}, '{{ task.title }}')"
+                        >
+                            <img src="{% static 'icons/edit.png' %}" alt="edit" />
+                        </span>
+                        <a class="delete" 
+                            href="{% url 'web:delete' pk=task.pk %}"
+                        >
+                            <img src="{% static 'icons/delete.png' %}" alt="delete" />
+                        </a>
+                    </div>
+                </li>
+            {% endfor %}
+        </ul>
+    </div> <!--( div.todo_container > .todo_items )-->
+
+    <div class="input_conatainer">
+        <form action="" method="post">
+            {% csrf_token %}
+            <div class="input_box">
+                <span class="add_icon">+</span>
+                <input type="text" 
+                    name="task_title" 
+                    placeholder="Type new todo..." 
+                    id="input" 
+                />
+            </div>
+            <input type="submit" value="Add New" id="add_btn" />
+        </form>
+    </div> <!--( div.todo_container > .input_box )-->
+
+    <div class="completed_todo_items">
+        <h2 class="title">Completed Todo List</h2>
+        <ul class="items" id="completed_tasks">
+            {% for compleated_task in compleated_tasks %}
+                <li class="item">
+                    <div class="left">
+                        <span class="check">
+                            <img src="{% static 'icons/check.png' %}" alt="check" />
+                        </span>
+                        <span class="text">{{compleated_task}}</span>
+                    </div>
+                    <div class="right">
+                        <a class="undo" 
+                            href="{% url 'web:undo' pk=compleated_task.pk %}"
+                        >
+                            <img src="{% static 'icons/undo.png' %}" alt="undo" />
+                        </a>
+                        <a class="delete" 
+                            href="{% url 'web:delete' pk=compleated_task.pk %}"
+                        >
+                            <img src="{% static 'icons/delete.png' %}" alt="delete" />
+                        </a>
+                    </div>
+                </li>
+            {% endfor %}
+        </ul>
+    </div> <!--( div.todo_container > .completed_todo_items )-->
+</div> <!--( div.todo_container )-->
+
+<!-- edit_task popup -->
+{% include "../includes/edit_task.html" %}
+
+<script>
+    // let modalTrigger = document.querySelectorAll(".modal_trigger")
+    const modalContainer = document.getElementById("modal_container")
+
+    const modalClose = document.getElementById("close")
+
+    const taskUpdateForm = document.getElementById('id_update_form')
+
+    const updateInput = document.getElementById('update_input')
+
+    function openPopup(taskId, taskTitle){
+        modalContainer.style.display = "flex"
+        let url = '/update/' + taskId + '/'
+
+        updateInput.value = taskTitle
+
+        taskUpdateForm.addEventListener('submit', function(event) {
+            event.preventDefault()
+            // console.log(new FormData(event.target))
+            fetch(url, {
+                method: 'POST',
+                body: new FormData(event.target)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    console.log('Task updated:', data.data)
+                    modalContainer.style.display = "none"
+                    location.reload()
+                } else {
+                    console.log('Task update failed: ', data.data)
+                }
+            })
+            .catch(error => console.error('Error:', error))
+        })
+
+    }
+
+    // modalTrigger.forEach((taskItem)=>{
+    //     taskItem.addEventListener("click", function() {
+    //         modalContainer.style.display = "flex"
+    //     })
+    // })
+
+    modalClose.addEventListener("click", function() {
+        modalContainer.style.display = "none"
+        location.reload()
+    })
+    modalContainer.addEventListener("click", function(event) {
+        if (event.target === modalContainer) {
+            modalContainer.style.display = "none"
+            location.reload()
+        }
+    })
+</script>
+{% endblock %}

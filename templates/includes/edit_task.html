@@ -1,0 +1,20 @@
+<div id="modal_container">
+    <div class="modal_content">
+        <h3 class="title">Edit Task</h3>
+        <div class="input_conatainer">
+            <form action="" id="id_update_form" method="post">
+                {% csrf_token %}
+                <div class="input_box">
+                    <span class="add_icon">+</span>
+                    <input type="text" 
+                        name="new_task_title" 
+                        placeholder="Update your task value" 
+                        id="update_input" 
+                    />
+                </div>
+                <input type="submit" value="Edit Now" id="edit_btn" />
+            </form>
+        </div> <!--( div.todo_container > .input_box )-->
+      <button class="modal_close" id="close">Close</button>
+    </div>
+</div>

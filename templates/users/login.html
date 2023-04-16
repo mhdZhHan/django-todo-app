@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+<div class="form_container">
+    <h1 class="title_">Login</h1>
+    <form action="" method="post" novalidate>
+        {% csrf_token %}
+        <div class="input_fields">
+            {{ form.username }}
+            {{ form.password }}
+        </div>
+
+        {% if error %}
+            <div class="error">
+                <p class="error_message">{{message}}</p>
+            </div>
+        {% endif %}
+        
+        <div class="submit_btn">
+            <input type="submit" name="submit" value="Login" />
+            <span class="member">Already a member <a href="{% url 'users:register' %}">Register now</a></span>
+        </div>
+    </form>
+</div>
+{% endblock %}
